@@ -2,50 +2,42 @@ name: CI for Project 1
 
 on:
   push:
-      paths: ['project 1/**']
+    paths: ['project 1/**']
   pull_request:
-      paths: ['project 1/**']
-  #   branches:
-  #     - main
-  # pull_request:
-  #   branches:
-  #     - main
+    paths: ['project 1/**']
+  workflow_dispatch: {}
 
-  jobs:
-    build-and-test:
-      runs-on : ubuntu-latest
-      steps:
-        - name : checkout code
-          uses : actions/checkout@v2
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
 
-        - name : set up Node.js
-          uses : actions/setup-node@v2
-          with:
-            node-version: '18'
+      - name: set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
 
-        - name : cache node modules
-          uses : actions/cache@v2
-          with:
-            path : project 1/node_modules
-            key : ${{ runner.os }}-node-modules-${{ hashFiles('project 1/package-lock.json') }}
-            restore-keys : |
-              ${{ runner.os }}-node-modules-
+      - name: cache node modules
+        uses: actions/cache@v4
+        with:
+          path: project 1/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('project 1/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
 
-        - name : install dependencies
-          run : |
-            cd "project 1"
-            npm install
+      - name: install dependencies
+        run: |
+          cd "project 1"
+          npm install
 
-        - name : run tests
-          run : |
-            cd "project 1"
-            npm test   
+      - name: run tests
+        run: |
+          cd "project 1"
+          npm test
 
-        - name : build project
-          run : |
-            cd "project 1"
-            npm run build   
-
-        
-
-        
+      - name: build project
+        run: |
+          cd "project 1"
+          npm run build
