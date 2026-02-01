@@ -30,7 +30,7 @@ jobs:
       - name: install dependencies
         run: |
           cd "project 1"
-          npm install
+          npm install 
 
       - name: run tests
         run: |
