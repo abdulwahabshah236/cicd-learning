@@ -41,3 +41,8 @@ jobs:
         run: |
           cd "project 1"
           npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: project-1-build
