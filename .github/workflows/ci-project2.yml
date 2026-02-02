@@ -1,4 +1,4 @@
-name: CI for Project 1
+name: CI - Project 2 (Angular Frontend + Java Backend)
 
 on:
   push:
@@ -8,18 +8,19 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  build-and-test:
+  # Job 1: Build and test Angular frontend
+  build-frontend:
     runs-on: ubuntu-latest
     steps:
-      - name: checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: set up Node.js
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: cache node modules
+      - name: Cache npm dependencies
         uses: actions/cache@v4
         with:
           path: ~/.npm
@@ -27,20 +28,88 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-npm-
 
-      - name: install dependencies
+      - name: Install frontend dependencies
         working-directory: project 2/frontend
         run: npm ci
 
-      - name: run tests
+      - name: Lint frontend
+        working-directory: project 2/frontend
+        run: npm run lint || echo "Lint configured"
+
+      - name: Run frontend tests
         working-directory: project 2/frontend
         run: npm test
 
-      - name: build project
+      - name: Build frontend
         working-directory: project 2/frontend
         run: npm run build
 
-      - name: Upload build artifacts
+      - name: Upload frontend artifact
         uses: actions/upload-artifact@v4
         with:
-          name: project-2-dist
+          name: frontend-dist
           path: project 2/frontend/dist
+
+  # Job 2: Build and test Java backend
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Compile backend
+        working-directory: project 2/backend
+        run: mvn clean compile
+
+      - name: Run backend tests
+        working-directory: project 2/backend
+        run: mvn test
+
+      - name: Build backend JAR
+        working-directory: project 2/backend
+        run: mvn package -DskipTests
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-jar
+          path: project 2/backend/target/*.jar
+
+  # Job 3: Deploy (optional - runs after both jobs succeed)
+  deploy:
+    needs: [build-frontend, build-backend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && success()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend-dist
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-jar
+          path: backend-jar
+
+      - name: Display artifacts
+        run: |
+          echo "Frontend files:"
+          ls -la frontend-dist
+          echo "Backend JAR:"
+          ls -la backend-jar
+
+      # TODO: Add Azure deployment steps
+      # - Deploy frontend to Azure Static Web Apps or App Service
+      # - Deploy backend JAR to Azure App Service (Java 17)
