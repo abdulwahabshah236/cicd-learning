@@ -22,25 +22,22 @@ jobs:
       - name: cache node modules
         uses: actions/cache@v4
         with:
-          path: project 1/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('project 1/package-lock.json') }}
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('project 2/frontend/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-node-modules-
+            ${{ runner.os }}-npm-
 
       - name: install dependencies
-        run: |
-          cd "project 2"
-          npm install ci 
+        working-directory: project 2/frontend
+        run: npm ci
 
       - name: run tests
-        run: |
-          cd "project 2/frontend"
-          npm test
+        working-directory: project 2/frontend
+        run: npm test
 
       - name: build project
-        run: |
-          cd "project 2/frontend"
-          npm run build
+        working-directory: project 2/frontend
+        run: npm run build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
