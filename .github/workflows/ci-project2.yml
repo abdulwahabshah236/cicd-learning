@@ -1,0 +1,49 @@
+name: CI for Project 1
+
+on:
+  push:
+    paths: ['project 2/**']
+  pull_request:
+    paths: ['project 2/**']
+  workflow_dispatch: {}
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+
+      - name: set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: cache node modules
+        uses: actions/cache@v4
+        with:
+          path: project 1/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('project 1/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+
+      - name: install dependencies
+        run: |
+          cd "project 2"
+          npm install ci 
+
+      - name: run tests
+        run: |
+          cd "project 2/frontend"
+          npm test
+
+      - name: build project
+        run: |
+          cd "project 2/frontend"
+          npm run build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-2-dist
+          path: project 2/frontend/dist

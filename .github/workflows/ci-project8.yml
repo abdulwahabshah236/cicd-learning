@@ -1,0 +1,16 @@
+name: CI - project 8
+
+on:
+  push:
+    paths: ['project 8/**']
+  pull_request:
+    paths: ['project 8/**']
+  workflow_dispatch: {}
+
+jobs:
+  # TODO: Add build and test jobs
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo "CI for project 8 - to be implemented"
