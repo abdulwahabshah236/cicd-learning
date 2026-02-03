@@ -1,0 +1,31 @@
+# Git ignore for Project 3
+
+# Backend (Java/Maven)
+project\ 3/backend/target/
+project\ 3/backend/.classpath
+project\ 3/backend/.project
+project\ 3/backend/.settings/
+project\ 3/backend/*.class
+project\ 3/backend/**/*.class
+project\ 3/backend/.idea/
+project\ 3/backend/*.iml
+project\ 3/backend/out/
+
+# Frontend (Node)
+project\ 3/frontend/node_modules/
+project\ 3/frontend/dist/
+project\ 3/frontend/.angular/
+project\ 3/frontend/package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+.env
+.env.local

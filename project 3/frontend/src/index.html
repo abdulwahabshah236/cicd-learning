@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project 3 - Frontend</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Project 3: CICD Learning</h1>
+            <p class="subtitle">Simple Full-Stack Application</p>
+        </header>
+
+        <main>
+            <!-- Greeting Section -->
+            <section class="card">
+                <h2>Greeting API</h2>
+                <div class="form-group">
+                    <label for="nameInput">Enter your name:</label>
+                    <input type="text" id="nameInput" placeholder="e.g., John" value="World">
+                </div>
+                <button onclick="callGreeting()" class="btn">Get Greeting</button>
+                <div id="greetingResult" class="result"></div>
+            </section>
+
+            <!-- Health Check Section -->
+            <section class="card">
+                <h2>Health Check</h2>
+                <button onclick="callHealth()" class="btn">Check Backend Status</button>
+                <div id="healthResult" class="result"></div>
+            </section>
+
+            <!-- Echo Section -->
+            <section class="card">
+                <h2>Echo API</h2>
+                <div class="form-group">
+                    <label for="echoInput">Enter a message:</label>
+                    <input type="text" id="echoInput" placeholder="e.g., Hello Backend!" value="Hello from Frontend!">
+                </div>
+                <button onclick="callEcho()" class="btn">Send Message</button>
+                <div id="echoResult" class="result"></div>
+            </section>
+
+            <!-- Status Section -->
+            <section class="card info">
+                <h3>Backend Configuration</h3>
+                <p><strong>API Base URL:</strong> <code id="apiUrl">http://localhost:8080/api</code></p>
+                <p><strong>Status:</strong> <span id="status" class="status-pending">Checking...</span></p>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 CICD Learning Project 3</p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

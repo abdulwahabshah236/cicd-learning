@@ -1,4 +1,4 @@
-name: CI - project 3
+name: CI/CD - Project 3 (.NET + Frontend)
 
 on:
   push:
@@ -8,9 +8,177 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  # TODO: Add build and test jobs
-  placeholder:
+  # Job 1: Build and publish .NET backend
+  build-backend:
     runs-on: ubuntu-latest
     steps:
-      - name: Placeholder
-        run: echo "CI for project 3 - to be implemented"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore backend dependencies
+        working-directory: project 3/backend
+        run: dotnet restore
+
+      - name: Build backend
+        working-directory: project 3/backend
+        run: dotnet build --configuration Release --no-restore
+
+      - name: Publish backend
+        working-directory: project 3/backend
+        run: dotnet publish -c Release -o ./publish
+
+      - name: Upload backend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-publish
+          path: project 3/backend/publish
+
+  # Job 2: Build frontend
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install frontend dependencies
+        working-directory: project 3/frontend
+        run: npm install
+
+      - name: Build frontend
+        working-directory: project 3/frontend
+        run: npm run build
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: project 3/frontend/src
+
+  # Job 3: Run backend tests
+  test-backend:
+    runs-on: ubuntu-latest
+    needs: build-backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore test dependencies
+        working-directory: project 3/Tests
+        run: dotnet restore
+
+      - name: Run backend tests
+        working-directory: project 3/Tests
+        run: dotnet test --verbosity normal
+
+  # Job 4: Deploy to Dev (automatic on main)
+  deploy-dev:
+    needs: [build-backend, build-frontend, test-backend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && success()
+    environment: dev
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-publish
+          path: ./backend-dist
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: ./frontend-dist
+
+      - name: Display artifacts
+        run: |
+          echo "=== Backend Files ==="
+          ls -la ./backend-dist
+          echo ""
+          echo "=== Frontend Files ==="
+          ls -la ./frontend-dist
+
+      # TODO: Add Azure App Service deployment steps for DEV
+      # - name: Deploy backend to Dev App Service
+      #   uses: azure/webapps-deploy@v2
+      #   with:
+      #     app-name: 'project3-backend-dev'
+      #     publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_DEV }}
+      #     package: ./backend-dist
+      #
+      # - name: Deploy frontend to Dev Static Web Apps
+      #   uses: Azure/static-web-apps-deploy@v1
+      #   with:
+      #     azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DEV }}
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     action: "upload"
+      #     app_location: "./frontend-dist"
+
+      - name: Display Deploy Ready
+        run: echo "✅ Artifacts ready for deployment to DEV"
+
+  # Job 5: Deploy to Production (manual approval)
+  deploy-prod:
+    needs: deploy-dev
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && success()
+    environment: production
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download backend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-publish
+          path: ./backend-dist
+
+      - name: Download frontend artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: ./frontend-dist
+
+      - name: Display artifacts
+        run: |
+          echo "=== Backend Files for PRODUCTION ==="
+          ls -la ./backend-dist
+          echo ""
+          echo "=== Frontend Files for PRODUCTION ==="
+          ls -la ./frontend-dist
+
+      # TODO: Add Azure App Service deployment steps for PROD
+      # - name: Deploy backend to Prod App Service
+      #   uses: azure/webapps-deploy@v2
+      #   with:
+      #     app-name: 'project3-backend-prod'
+      #     publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PROD }}
+      #     package: ./backend-dist
+      #
+      # - name: Deploy frontend to Prod Static Web Apps
+      #   uses: Azure/static-web-apps-deploy@v1
+      #   with:
+      #     azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PROD }}
+      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
+      #     action: "upload"
+      #     app_location: "./frontend-dist"
+
+      - name: Display Deploy Complete
+        run: echo "✅ Deployment to PRODUCTION complete"

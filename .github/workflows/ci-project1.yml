@@ -8,42 +8,54 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout code
-        uses: actions/checkout@v4
+  job:
 
-      - name: set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
+    build-and-test:
+      runs-on: ubuntu-latest
+      steps:
+        - name: checkout code
+          uses: actions/checkout@v4
 
-      - name: cache node modules
-        uses: actions/cache@v4
-        with:
-          path: project 1/node_modules
-          key: ${{ runner.os }}-node-modules-${{ hashFiles('project 1/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-modules-
+        - name: set up Node.js
+          uses: actions/setup-node@v4
+          with:
+            node-version: '18'
 
-      - name: install dependencies
-        run: |
-          cd "project 1"
-          npm install 
+        - name: cache node modules
+          uses: actions/cache@v4
+          with:
+            path: project 1/node_modules
+            key: ${{ runner.os }}-node-modules-${{ hashFiles('project 1/package-lock.json') }}
+            restore-keys: |
+              ${{ runner.os }}-node-modules-
 
-      - name: run tests
-        run: |
-          cd "project 1"
-          npm test
+        - name: install dependencies
+          run: |
+            cd "project 1"
+            npm install 
 
-      - name: build project
-        run: |
-          cd "project 1"
-          npm run build
+        - name: run tests
+          run: |
+            cd "project 1"
+            npm test
 
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: project-1-build
-          path: project 1/
+        - name: build project
+          run: |
+            cd "project 1"
+            npm run build
+
+        - name: Upload build artifacts
+          uses: actions/upload-artifact@v4
+          with:
+            name: project-1-build
+            path: project 1/
+
+    deploy:
+      needs: build-and-test
+      runs-on: ubuntu-latest
+      steps:
+        - name: Download artifacts
+          uses: actions/download-artifact@v4
+          with:
+            name: project-1-build
+
