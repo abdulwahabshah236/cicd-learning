@@ -62,6 +62,9 @@ jobs:
     environment: dev
     steps:
       - uses: actions/checkout@v4
+      - uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
       - uses: actions/download-artifact@v4
         with:
           name: backend-publish
@@ -73,10 +76,8 @@ jobs:
       - uses: azure/webapps-deploy@v2
         with:
           app-name: api-dev-project-03
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_DEV }}
           package: ./backend-dist
       - uses: azure/webapps-deploy@v2
         with:
           app-name: web-dev-project-03
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND_DEV }}
           package: ./frontend-dist
