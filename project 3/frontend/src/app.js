@@ -1,7 +1,26 @@
 // API Configuration
-const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:5000/api'
-    : window.location.origin + '/api';
+function getApiBaseUrl() {
+    const hostname = window.location.hostname;
+    
+    // Local development
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+        return 'http://localhost:5000/api';
+    }
+    
+    // Azure environments - backend on different App Service
+    if (hostname === 'web-dev-project-03.azurewebsites.net') {
+        return 'https://api-dev-project-03.azurewebsites.net/api';
+    }
+    
+    if (hostname === 'web-prod-project-03.azurewebsites.net') {
+        return 'https://api-prod-project-03.azurewebsites.net/api';
+    }
+    
+    // Fallback: assume backend is on same host
+    return window.location.origin + '/api';
+}
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Update API URL display
 document.getElementById('apiUrl').textContent = API_BASE_URL;

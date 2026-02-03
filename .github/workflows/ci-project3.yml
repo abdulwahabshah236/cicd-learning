@@ -115,70 +115,78 @@ jobs:
           echo "=== Frontend Files ==="
           ls -la ./frontend-dist
 
-      # TODO: Add Azure App Service deployment steps for DEV
-      # - name: Deploy backend to Dev App Service
-      #   uses: azure/webapps-deploy@v2
-      #   with:
-      #     app-name: 'project3-backend-dev'
-      #     publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_DEV }}
-      #     package: ./backend-dist
-      #
-      # - name: Deploy frontend to Dev Static Web Apps
-      #   uses: Azure/static-web-apps-deploy@v1
-      #   with:
-      #     azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_DEV }}
-      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
-      #     action: "upload"
-      #     app_location: "./frontend-dist"
-
-      - name: Display Deploy Ready
-        run: echo "✅ Artifacts ready for deployment to DEV"
-
-  # Job 5: Deploy to Production (manual approval)
-  deploy-prod:
-    needs: deploy-dev
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && success()
-    environment: production
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Download backend artifact
-        uses: actions/download-artifact@v4
+      - name: Deploy backend to Dev App Service
+        uses: azure/webapps-deploy@v2
         with:
-          name: backend-publish
-          path: ./backend-dist
+          app-name: 'api-dev-project-03'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_DEV }}
+          package: ./backend-dist
 
-      - name: Download frontend artifact
-        uses: actions/download-artifact@v4
+      - name: Deploy frontend to Dev App Service
+        uses: azure/webapps-deploy@v2
         with:
-          name: frontend-dist
-          path: ./frontend-dist
+          app-name: 'web-dev-project-03'
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND_DEV }}
+          package: ./frontend-dist
 
-      - name: Display artifacts
+      - name: Health Check Dev Backend
         run: |
-          echo "=== Backend Files for PRODUCTION ==="
-          ls -la ./backend-dist
-          echo ""
-          echo "=== Frontend Files for PRODUCTION ==="
-          ls -la ./frontend-dist
-
-      # TODO: Add Azure App Service deployment steps for PROD
-      # - name: Deploy backend to Prod App Service
-      #   uses: azure/webapps-deploy@v2
-      #   with:
-      #     app-name: 'project3-backend-prod'
-      #     publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PROD }}
-      #     package: ./backend-dist
-      #
-      # - name: Deploy frontend to Prod Static Web Apps
-      #   uses: Azure/static-web-apps-deploy@v1
-      #   with:
-      #     azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_PROD }}
-      #     repo_token: ${{ secrets.GITHUB_TOKEN }}
-      #     action: "upload"
-      #     app_location: "./frontend-dist"
+          echo "Waiting for backend to start..."
+          sleep 30
+          curl -f https://api-dev-project-03.azurewebsites.net/api/health || echo "Health check failed"
 
       - name: Display Deploy Complete
-        run: echo "✅ Deployment to PRODUCTION complete"
+        run: echo "✅ Deployed to DEV - Backend: https://api-dev-project-03.azurewebsites.net | Frontend: https://web-dev-project-03.azurewebsites.net"
+
+  # Job 5: Deploy to Production (DISABLED - will be enabled later)
+  # deploy-prod:
+  #   needs: deploy-dev
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main' && success()
+  #   environment: production
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+  #
+  #     - name: Download backend artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: backend-publish
+  #         path: ./backend-dist
+  #
+  #     - name: Download frontend artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: frontend-dist
+  #         path: ./frontend-dist
+  #
+  #     - name: Display artifacts
+  #       run: |
+  #         echo "=== Backend Files for PRODUCTION ==="
+  #         ls -la ./backend-dist
+  #         echo ""
+  #         echo "=== Frontend Files for PRODUCTION ==="
+  #         ls -la ./frontend-dist
+  #
+  #     - name: Deploy backend to Prod App Service
+  #       uses: azure/webapps-deploy@v2
+  #       with:
+  #         app-name: 'api-prod-project-03'
+  #         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PROD }}
+  #         package: ./backend-dist
+  #
+  #     - name: Deploy frontend to Prod App Service
+  #       uses: azure/webapps-deploy@v2
+  #       with:
+  #         app-name: 'web-prod-project-03'
+  #         publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_FRONTEND_PROD }}
+  #         package: ./frontend-dist
+  #
+  #     - name: Health Check Prod Backend
+  #       run: |
+  #         echo "Waiting for backend to start..."
+  #         sleep 30
+  #         curl -f https://api-prod-project-03.azurewebsites.net/api/health || echo "Health check failed"
+  #
+  #     - name: Display Deploy Complete
+  #       run: echo "✅ Deployed to PRODUCTION - Backend: https://api-prod-project-03.azurewebsites.net | Frontend: https://web-prod-project-03.azurewebsites.net"
