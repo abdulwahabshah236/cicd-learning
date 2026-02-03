@@ -136,7 +136,7 @@ jobs:
           curl -f https://api-dev-project-03.azurewebsites.net/api/health || echo "Health check failed"
 
       - name: Display Deploy Complete
-        run: echo "✅ Deployed to DEV - Backend: https://api-dev-project-03.azurewebsites.net | Frontend: https://web-dev-project-03.azurewebsites.net"
+        run: echo "Deployed to DEV - Backend: https://api-dev-project-03.azurewebsites.net | Frontend: https://web-dev-project-03.azurewebsites.net"
 
   # Job 5: Deploy to Production (DISABLED - will be enabled later)
   # deploy-prod:
