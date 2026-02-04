@@ -22,7 +22,6 @@ function App() {
       setItems(response.data);
     } catch (err) {
       setError('Failed to fetch items');
-      console.error(err);
     } finally {
       setLoading(false);
     }
@@ -40,7 +39,6 @@ function App() {
       setNewItem('');
     } catch (err) {
       setError('Failed to add item');
-      console.error(err);
     }
   };
 
@@ -50,7 +48,6 @@ function App() {
       setItems(items.filter((item) => item.id !== id));
     } catch (err) {
       setError('Failed to delete item');
-      console.error(err);
     }
   };
 
