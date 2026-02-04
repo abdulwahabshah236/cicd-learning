@@ -22,16 +22,24 @@ jobs:
         working-directory: project 4/backend
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.9'
           cache: 'pip'
-      - run: |
+      
+      - name: Install dependencies
+        run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest pytest-cov flake8
-      - run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
-      - run: pytest tests/ --cov=. --cov-report=xml || true
+      
+      - name: Lint with flake8
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics || true
+      
+      - name: Run Python tests
+        run: pytest tests/ --cov=. --cov-report=xml || true
 
   test-frontend:
     runs-on: ubuntu-latest
@@ -40,11 +48,28 @@ jobs:
         working-directory: project 4/frontend
     steps:
       - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: '18'
-      - run: npm install
-      - run: npm run build
+      
+      - name: Cache node modules
+        uses: actions/cache@v4
+        with:
+          path: project 4/frontend/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('project 4/frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-modules-
+      
+      - name: Install dependencies
+        run: npm install
+      
+      - name: Run tests
+        run: npm test -- --passWithNoTests || true
+      
+      - name: Build project
+        run: npm run build
 
   build-backend:
     needs: test-backend
