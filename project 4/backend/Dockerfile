@@ -9,9 +9,10 @@ ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
 
-# Install system dependencies
+# Install system dependencies and ODBC driver for Azure SQL
 RUN apt-get update && apt-get install -y \
     gcc \
+    unixodbc-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching

@@ -10,9 +10,15 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
-    'DATABASE_URL', 'sqlite:///project4.db'
-)
+db_url = os.getenv('DATABASE_URL')
+if not db_url:
+    db_url = 'sqlite:///project4.db'
+elif 'mssql' not in db_url and '+pyodbc' not in db_url:
+    if '@' in db_url and '.database.windows.net' in db_url:
+        db_url = db_url.replace('mssql://', 'mssql+pyodbc://')
+        if '?driver=' not in db_url:
+            db_url += '?driver=ODBC+Driver+17+for+SQL+Server'
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JSON_SORT_KEYS'] = False
 
