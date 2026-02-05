@@ -29,15 +29,12 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy built app from builder
 COPY --from=builder /app/build /usr/share/nginx/html
 
-# Expose port 3000 for Azure App Service
-EXPOSE 3000
-
-# Modify nginx to listen on port 3000
-RUN sed -i 's/listen 80;/listen 3000;/g' /etc/nginx/conf.d/default.conf
+# Expose port 80
+EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-    CMD wget --quiet --tries=1 --spider http://localhost:3000/index.html || exit 1
+    CMD wget --quiet --tries=1 --spider http://localhost:80/index.html || exit 1
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"]
