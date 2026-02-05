@@ -4,6 +4,10 @@ FROM node:18-alpine AS builder
 # Set working directory
 WORKDIR /app
 
+# Accept build argument for backend API URL
+ARG REACT_APP_API_URL
+ENV REACT_APP_API_URL=${REACT_APP_API_URL}
+
 # Copy package files
 COPY package.json package-lock.json ./
 

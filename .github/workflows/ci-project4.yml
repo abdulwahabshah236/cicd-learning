@@ -107,6 +107,8 @@ jobs:
           context: project 4/frontend
           file: project 4/frontend/Dockerfile
           push: true
+          build-args: |
+            REACT_APP_API_URL=https://project04-dev-backend.azurewebsites.net/api
           tags: |
             ${{ env.FRONTEND_IMAGE }}:latest
             ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
