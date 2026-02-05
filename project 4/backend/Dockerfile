@@ -9,9 +9,16 @@ ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
 
-# Install system dependencies
+# Install system dependencies and SQL Server ODBC driver
 RUN apt-get update && apt-get install -y \
     gcc \
+    unixodbc-dev \
+    curl \
+    gnupg \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/debian/11/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for better caching
