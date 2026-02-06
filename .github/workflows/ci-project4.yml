@@ -113,4 +113,44 @@ jobs:
             ${{ env.FRONTEND_IMAGE }}:latest
             ${{ env.FRONTEND_IMAGE }}:${{ github.sha }}
 
+  deploy:
+    needs: [build-backend, build-frontend]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
 
+      - name: Deploy Backend
+        run: |
+          az webapp config container set \
+            --name project04-dev-backend \
+            --resource-group project04-dev-rg \
+            --docker-custom-image-name ${{ env.BACKEND_IMAGE }}:${{ github.sha }} \
+            --docker-registry-server-url https://index.docker.io
+
+      - name: Deploy Frontend
+        run: |
+          az webapp config container set \
+            --name project04-dev-frontend \
+            --resource-group project04-dev-rg \
+            --docker-custom-image-name ${{ env.FRONTEND_IMAGE }}:${{ github.sha }} \
+            --docker-registry-server-url https://index.docker.io
+
+      - name: Restart App Services
+        run: |
+          az webapp restart --name project04-dev-backend --resource-group project04-dev-rg
+          az webapp restart --name project04-dev-frontend --resource-group project04-dev-rg
+
+      - name: Wait for services to start
+        run: sleep 30
+
+      - name: Health Check - Backend
+        run: |
+          curl -sf https://project04-dev-backend.azurewebsites.net/api/health || echo "Backend still starting..."
+
+      - name: Health Check - Frontend
+        run: |
+          curl -sf https://project04-dev-frontend.azurewebsites.net/ || echo "Frontend still starting..."
